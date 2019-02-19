@@ -3,12 +3,31 @@ const router = express.Router();
 const Product = require('../models/product');
 const mongoose = require('mongoose');
 
+const production  = 'https://radiant-wildwood-24015.herokuapp.com';
+const development = 'http://localhost:3000/';
+const url = (process.env.NODE_ENV ? production : development);
+
 router.get('/', (req, res, next) => {
     Product.find()
+    .select('name price _id')
     .exec()
     .then(docs => {
-        console.log(docs);
-        res.status(200).json(docs);
+        const response = {
+            count: docs.length, 
+            products: docs.map(doc => {
+                return {
+                    name: doc.name, 
+                    price: doc.price,
+                    _id: doc._id,
+                    request: {
+                        type: 'GET',
+                        url: url + doc._id
+                    }
+                }
+            })
+        };
+        console.log(response);
+        res.status(200).json(response);
     })
     .catch(err => {
         console.log(err);
@@ -27,8 +46,16 @@ router.post('/', (req, res, next) => {
         .then(result => {
             console.log(result);
             res.status(201).json({
-                message: 'Handing POST requests to /products',
-                createdProduct: result
+                message: 'Created product',
+                createdProduct: {
+                    name: result.name,
+                    price: result.price,
+                    _id: result._id, 
+                    request: {
+                        type: 'GET',
+                        url: url + doc._id
+                    }
+                }
             })
         })
         .catch(err => {
@@ -42,9 +69,20 @@ router.get('/:productId', (req, res, next) => {
     Product.findById(id)
     .exec()
     .then(doc => {
-        console.log(doc);
-        if(doc){
-        res.status(200).json({doc})
+        const response = { 
+            product: {
+                name: doc.name, 
+                price: doc.price,
+                _id: doc._id,
+                request: {
+                    type: 'GET',
+                    url: url + doc._id
+                }
+            }
+        };
+        console.log(response);
+        if(response){
+        res.status(200).json({doc: response})
     } else {
         res.status(404).json({message: 'No valid entry found for that ID'})
     }
