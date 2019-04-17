@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 
 const productRoutes = require('./api/routes/products');
 const orderRoutes = require('./api/routes/orders');
+const deviceRoutes = require('./api/routes/devices');
 
 mongoose.connect(
     'mongodb://christian:restypimasterthesis@resty-pi-db-shard-00-00-6exid.mongodb.net:27017,resty-pi-db-shard-00-01-6exid.mongodb.net:27017,resty-pi-db-shard-00-02-6exid.mongodb.net:27017/test?ssl=true&replicaSet=resty-pi-db-shard-0&authSource=admin&retryWrites=true', 
@@ -36,8 +37,9 @@ app.use((req, res, next) =>{
     next();
 });
 // Routes that handle incomming requests
-app.use('/products', productRoutes); // if 'produts' is the URL foward it to productRoute
+app.use('/products', productRoutes); 
 app.use('/orders', orderRoutes);
+app.use('/devices', deviceRoutes);
 
 // No path matched --> add an error to the middleware chain
 app.use((req, res, next) => {
